@@ -5,11 +5,11 @@ from tempfile import mkdtemp
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 
-main = Flask(__name__)
+app = Flask(__name__)
 
-main.config["SESSION_PERMANENT"] = False
-main.config["SESSION_TYPE"] = "filesystem"
-Session(main)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 
 def apology(message, code=400):
@@ -22,7 +22,7 @@ def apology(message, code=400):
         return s
     return render_template("apology.html", top=code, bottom=escape(message)), code
 
-@main.after_request
+@app.after_request
 def after_request(response):
     """Ensure responses aren't cached"""
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -30,13 +30,13 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-@main.route("/")
+@app.route("/")
 def home():
     return render_template("index.html")
         
 
 
-@main.route("/games", methods=["GET", "POST"])
+@app.route("/games", methods=["GET", "POST"])
 def games():
     conn = sqlite3.connect('players.db')
     cursor = conn.cursor()
@@ -59,7 +59,7 @@ def games():
 
 
 
-@main.route("/register", methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"])
 def register():
 
     session.clear()
@@ -88,7 +88,7 @@ def register():
     return redirect("/")
 
         
-@main.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     
     session.clear()
@@ -110,7 +110,7 @@ def login():
                     
         return apology("invalid username or password")
 
-@main.route("/logout")
+@app.route("/logout")
 def logout():
     session.clear()
     session['logged_in'] = False
@@ -118,7 +118,7 @@ def logout():
 
 
 
-@main.route("/create", methods=["GET", "POST"])
+@app.route("/create", methods=["GET", "POST"])
 def create():
 
     if request.method=="GET":
@@ -136,7 +136,7 @@ def create():
         return redirect("/")
 
 
-@main.route("/play", methods=["GET", "POST"])
+@app.route("/play", methods=["GET", "POST"])
 def play():
     if request.method=="GET":
         
@@ -180,7 +180,7 @@ def play():
 
 
 
-@main.route("/view_game/<int:game_id>", methods=["GET", "POST"])
+@app.route("/view_game/<int:game_id>", methods=["GET", "POST"])
 def view_game(game_id:int):
     if request.method=="GET":
         conn = sqlite3.connect('players.db')
@@ -238,7 +238,7 @@ def view_game(game_id:int):
 
 
 
-@main.route("/deregister", methods=["GET", "POST"])
+@app.route("/deregister", methods=["GET", "POST"])
 def deregister():
     game_to_dereg = int(request.form.get("game_id_dereg"))
     print(game_to_dereg)
@@ -254,7 +254,7 @@ def deregister():
 
 
 if __name__ == "__main__":
-    main.run()
+    app.run()
 
 
 
